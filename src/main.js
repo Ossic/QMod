@@ -33,8 +33,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 5.3;
-controls.maxDistance = 9.5;
+controls.enableZoom = false;
 controls.minPolarAngle = 0.65;
 controls.maxPolarAngle = 1.65;
 controls.target.set(0, 0.8, 0);
@@ -49,15 +48,6 @@ scene.add(keyLight);
 const rimLight = new THREE.PointLight(0xb74a50, 11, 12, 2);
 rimLight.position.set(3, 2.5, -2);
 scene.add(rimLight);
-
-const floor = new THREE.Mesh(
-  new THREE.CircleGeometry(4.1, 80),
-  new THREE.MeshStandardMaterial({ color: 0x161d42, roughness: 0.62, metalness: 0.14, transparent: true, opacity: 0.62 }),
-);
-floor.rotation.x = -Math.PI / 2;
-floor.position.y = -1.5;
-floor.receiveShadow = true;
-scene.add(floor);
 
 const starsGeometry = new THREE.BufferGeometry();
 const starCount = 150;
@@ -75,15 +65,17 @@ scene.add(stars);
 
 let figure;
 let mixer;
+let figureBaseY = 0;
 const loader = new GLTFLoader();
 loader.load('/models/chibi-figure.glb', (gltf) => {
   figure = gltf.scene;
   const bounds = new THREE.Box3().setFromObject(figure);
   const size = bounds.getSize(new THREE.Vector3());
   const center = bounds.getCenter(new THREE.Vector3());
-  const scale = 4.15 / Math.max(size.x, size.y, size.z);
+  const scale = 3.55 / Math.max(size.x, size.y, size.z);
   figure.scale.setScalar(scale);
-  figure.position.set(-center.x * scale, -center.y * scale - 1.35, -center.z * scale);
+  figureBaseY = -center.y * scale - 0.95;
+  figure.position.set(-center.x * scale, figureBaseY, -center.z * scale);
   figure.traverse((node) => {
     if (node.isMesh) {
       node.castShadow = true;
@@ -101,9 +93,6 @@ loader.load('/models/chibi-figure.glb', (gltf) => {
 }, undefined, () => document.body.classList.add('model-fallback'));
 
 const clock = new THREE.Clock();
-let scrollFactor = 0;
-let pointerX = 0;
-let pointerY = 0;
 function resize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -115,11 +104,6 @@ function resetView() {
   controls.update();
 }
 window.addEventListener('resize', resize);
-window.addEventListener('scroll', () => { scrollFactor = Math.min(window.scrollY / Math.max(window.innerHeight, 1), 3); }, { passive: true });
-window.addEventListener('pointermove', (event) => {
-  pointerX = (event.clientX / window.innerWidth - 0.5) * 2;
-  pointerY = (event.clientY / window.innerHeight - 0.5) * 2;
-}, { passive: true });
 canvas.addEventListener('pointerdown', () => { controls.autoRotate = false; });
 resetButton.addEventListener('click', resetView);
 soundButton.addEventListener('click', () => {
@@ -134,11 +118,9 @@ function animate() {
   const delta = clock.getDelta();
   stars.rotation.y = elapsed * 0.017;
   if (figure) {
-    figure.rotation.y += (pointerX * 0.18 - figure.rotation.y) * 0.015;
-    figure.position.y += Math.sin(elapsed * 1.25) * 0.0014;
+    figure.position.y = figureBaseY + Math.sin(elapsed * 1.25) * 0.025;
   }
   if (mixer) mixer.update(delta);
-  camera.position.y += ((1.2 + scrollFactor * 0.13 - pointerY * 0.1) - camera.position.y) * 0.015;
   rimLight.intensity = 10 + Math.sin(elapsed * 1.5) * 1.5;
   controls.update();
   renderer.render(scene, camera);
