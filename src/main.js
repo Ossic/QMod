@@ -7,6 +7,10 @@ const canvas = document.querySelector('#figure-scene');
 const resetButton = document.querySelector('.reset-view');
 const soundButton = document.querySelector('.sound-toggle');
 const dust = document.querySelector('#poem-dust');
+const backgroundTrack = new Audio('/music/contemplation.mp3');
+backgroundTrack.loop = true;
+backgroundTrack.volume = 0.18;
+backgroundTrack.preload = 'metadata';
 const poemCharacters = ['\u6708', '\u98ce', '\u6c5f', '\u9152', '\u7af9', '\u4e91', '\u6e38', '\u8bcd'];
 
 for (let index = 0; index < 18; index += 1) {
@@ -34,6 +38,8 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.enableZoom = false;
+controls.touches.ONE = THREE.TOUCH.NONE;
+controls.touches.TWO = THREE.TOUCH.NONE;
 controls.minPolarAngle = 0.65;
 controls.maxPolarAngle = 1.65;
 controls.target.set(0, 0.8, 0);
@@ -74,7 +80,7 @@ loader.load('/models/chibi-figure.glb', (gltf) => {
   const center = bounds.getCenter(new THREE.Vector3());
   const scale = 3.55 / Math.max(size.x, size.y, size.z);
   figure.scale.setScalar(scale);
-  figureBaseY = -center.y * scale - 0.95;
+  figureBaseY = -center.y * scale - 0.55;
   figure.position.set(-center.x * scale, figureBaseY, -center.z * scale);
   figure.traverse((node) => {
     if (node.isMesh) {
@@ -108,9 +114,18 @@ canvas.addEventListener('pointerdown', () => { controls.autoRotate = false; });
 resetButton.addEventListener('click', resetView);
 soundButton.addEventListener('click', () => {
   const next = soundButton.getAttribute('aria-pressed') !== 'true';
-  soundButton.setAttribute('aria-pressed', String(next));
-  soundButton.querySelector('.sound-text').textContent = next ? '\u98ce\u541f' : '\u98ce\u8d77';
-  document.body.classList.toggle('sound-on', next);
+  if (next) {
+    backgroundTrack.play().then(() => {
+      soundButton.setAttribute('aria-pressed', 'true');
+      soundButton.querySelector('.sound-text').textContent = '\u98ce\u541f';
+      document.body.classList.add('sound-on');
+    }).catch(() => {});
+    return;
+  }
+  backgroundTrack.pause();
+  soundButton.setAttribute('aria-pressed', 'false');
+  soundButton.querySelector('.sound-text').textContent = '\u98ce\u8d77';
+  document.body.classList.remove('sound-on');
 });
 function animate() {
   requestAnimationFrame(animate);
