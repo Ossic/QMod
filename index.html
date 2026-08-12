@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071a22" />
+    <meta name="description" content="一场关于苏轼、明月与Q版手办的沉浸式夜游。" />
+    <title>东坡夜游 | Chibi Moonwalk</title>
+  </head>
+  <body>
+    <div class="page-noise" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="返回首页">东坡夜游<span>CHIBI MOONWALK</span></a>
+      <nav aria-label="页面导航">
+        <a href="#prologue">序</a>
+        <a href="#poetry">词</a>
+        <a href="#journey">游</a>
+      </nav>
+      <button class="sound-toggle" type="button" aria-pressed="false" title="切换风声氛围" aria-label="切换风声氛围">
+        <span class="sound-mark" aria-hidden="true">~</span>
+        <span class="sound-text">风起</span>
+      </button>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-label="Q版东坡夜游3D场景">
+        <canvas id="figure-scene" aria-label="可拖动旋转的Q版人物3D模型"></canvas>
+        <div class="moon" aria-hidden="true"><span></span><i></i></div>
+        <div class="mist mist-a" aria-hidden="true"></div>
+        <div class="mist mist-b" aria-hidden="true"></div>
+        <div id="poem-dust" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="kicker">乙巳 · 月下小记</p>
+          <h1>把人间烟火<br /><em>走成一阕词</em></h1>
+          <p class="hero-summary">她把苏轼装进袖口，也把一轮明月带去人间。</p>
+          <a class="scroll-cue" href="#prologue"><span>向下夜游</span><b aria-hidden="true"></b></a>
+        </div>
+        <div class="scene-note">
+          <p>拖动模型</p>
+          <strong>一蓑烟雨任平生</strong>
+        </div>
+        <button class="reset-view" type="button" title="重置模型视角" aria-label="重置模型视角">↻</button>
+        <div class="waterline" aria-hidden="true"><span></span><span></span><span></span></div>
+      </section>
+
+      <section class="prologue section-band" id="prologue">
+        <div class="section-index">01 / 序</div>
+        <div class="prologue-layout">
+          <p class="vertical-quote">竹杖芒鞋轻胜马</p>
+          <div>
+            <p class="eyebrow">云山之外，仍是热爱</p>
+            <h2>与东坡相遇<br />在一阵微醺的风里</h2>
+            <p class="body-copy">不必正襟危坐。她借一身圆润的可爱，讲一位旷达人如何在风雨、江月与寻常饭菜间，把日子过得有光。</p>
+          </div>
+          <div class="seal">苏<br />轼</div>
+        </div>
+      </section>
+
+      <section class="poetry section-band" id="poetry">
+        <div class="section-index">02 / 词</div>
+        <div class="poetry-head">
+          <p class="eyebrow">三帧心事</p>
+          <h2>把月光拆成三句</h2>
+        </div>
+        <div class="verse-grid">
+          <article class="verse-card lift-card">
+            <span>01</span>
+            <p>人生如逆旅，<br />我亦是行人。</p>
+            <small>临江仙 · 送钱穆父</small>
+          </article>
+          <article class="verse-card active-verse lift-card">
+            <span>02</span>
+            <p>明月几时有？<br />把酒问青天。</p>
+            <small>水调歌头 · 明月几时有</small>
+          </article>
+          <article class="verse-card lift-card">
+            <span>03</span>
+            <p>回首向来萧瑟处，<br />归去，也无风雨也无晴。</p>
+            <small>定风波 · 莫听穿林打叶声</small>
+          </article>
+        </div>
+      </section>
+
+      <section class="journey section-band" id="journey">
+        <div class="section-index">03 / 游</div>
+        <div class="journey-layout">
+          <div class="journey-title">
+            <p class="eyebrow">今夜路线</p>
+            <h2>赤壁的江风<br />吹到掌心</h2>
+          </div>
+          <ol class="route-list">
+            <li><b>一</b><div><strong>黄州</strong><span>一江清风，半盏江月</span></div></li>
+            <li><b>二</b><div><strong>惠州</strong><span>日啖荔枝三百颗</span></div></li>
+            <li><b>三</b><div><strong>儋州</strong><span>此心安处是吾乡</span></div></li>
+          </ol>
+        </div>
+        <p class="closing-line">不问归期，只管把眼前的山水看够。</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>东坡夜游</span>
+      <span>MODEL / CHIBI FIGURE</span>
+      <span>月白风清</span>
+    </footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
