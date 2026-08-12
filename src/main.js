@@ -7,7 +7,7 @@ const canvas = document.querySelector('#figure-scene');
 const resetButton = document.querySelector('.reset-view');
 const soundButton = document.querySelector('.sound-toggle');
 const dust = document.querySelector('#poem-dust');
-const backgroundTrack = new Audio('/music/contemplation.mp3');
+const backgroundTrack = new Audio('/music/happy-lullaby.mp3');
 backgroundTrack.loop = true;
 backgroundTrack.volume = 0.18;
 backgroundTrack.preload = 'metadata';
@@ -38,7 +38,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.enableZoom = false;
-controls.touches.ONE = THREE.TOUCH.NONE;
+controls.touches.ONE = THREE.TOUCH.ROTATE;
 controls.touches.TWO = THREE.TOUCH.NONE;
 controls.minPolarAngle = 0.65;
 controls.maxPolarAngle = 1.65;
@@ -117,14 +117,12 @@ soundButton.addEventListener('click', () => {
   if (next) {
     backgroundTrack.play().then(() => {
       soundButton.setAttribute('aria-pressed', 'true');
-      soundButton.querySelector('.sound-text').textContent = '\u98ce\u541f';
       document.body.classList.add('sound-on');
     }).catch(() => {});
     return;
   }
   backgroundTrack.pause();
   soundButton.setAttribute('aria-pressed', 'false');
-  soundButton.querySelector('.sound-text').textContent = '\u98ce\u8d77';
   document.body.classList.remove('sound-on');
 });
 function animate() {
