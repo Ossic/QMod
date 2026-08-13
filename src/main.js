@@ -102,6 +102,7 @@ loader.load(modelUrl, (gltf) => {
   figure.scale.setScalar(scale);
   figureBaseY = -center.y * scale - 0.55;
   figure.position.set(-center.x * scale, figureBaseY, -center.z * scale);
+  figure.rotation.set(THREE.MathUtils.degToRad(4), THREE.MathUtils.degToRad(-10), 0);
   figure.traverse((node) => {
     if (node.isMesh) {
       node.castShadow = true;
