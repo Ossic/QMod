@@ -86,7 +86,7 @@ let figure;
 let mixer;
 let figureBaseY = 0;
 const loader = new GLTFLoader();
-const modelUrl = isIPhoneWebKit ? '/models/chibi-figure-ios-1k.glb' : '/models/chibi-figure.glb';
+const modelUrl = isIPhoneWebKit ? '/models/chibi-figure-ios-quality.glb' : '/models/chibi-figure.glb';
 function setModelStatus(message, state) {
   modelLoading.querySelector('span').textContent = message;
   document.body.classList.remove('model-ready', 'model-fallback');
