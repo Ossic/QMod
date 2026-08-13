@@ -139,6 +139,7 @@ function resize() {
 function resetView() {
   camera.position.set(0, 1.2, 8.1);
   controls.target.set(0, 0.8, 0);
+  controls.autoRotate = true;
   controls.update();
 }
 window.addEventListener('resize', resize);
