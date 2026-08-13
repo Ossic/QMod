@@ -7,6 +7,6 @@
 
 ## Footprints page
 
-- Track: browser-generated pentatonic ambient music
-- Source: original procedural Web Audio composition in `src/footprints.js`
-- License: CC0 1.0 Universal (Public Domain)
+- Track: Happy Lullaby (slow arrangement)
+- Arrangement: played at 78% speed with pitch preservation disabled for a slower, gentler character
+- Source and license: same CC0 source as the track above
