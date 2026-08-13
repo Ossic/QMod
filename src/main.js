@@ -6,6 +6,11 @@ import './styles.css';
 const canvas = document.querySelector('#figure-scene');
 const resetButton = document.querySelector('.reset-view');
 const soundButton = document.querySelector('.sound-toggle');
+const shootingStar = document.querySelector('.shooting-star');
+const feedbackButton = document.querySelector('.feedback-toggle');
+const feedbackDialog = document.querySelector('.feedback-dialog');
+const feedbackCloseButton = document.querySelector('.feedback-close');
+const copyWechatButton = document.querySelector('.copy-wechat');
 const dust = document.querySelector('#poem-dust');
 const backgroundTrack = new Audio('/music/happy-lullaby.mp3');
 backgroundTrack.loop = true;
@@ -112,18 +117,59 @@ function resetView() {
 window.addEventListener('resize', resize);
 canvas.addEventListener('pointerdown', () => { controls.autoRotate = false; });
 resetButton.addEventListener('click', resetView);
+
+function setSoundState(isPlaying) {
+  soundButton.setAttribute('aria-pressed', String(isPlaying));
+  document.body.classList.toggle('sound-on', isPlaying);
+}
+
+async function startBackgroundTrack() {
+  try {
+    await backgroundTrack.play();
+    setSoundState(true);
+  } catch {
+    setSoundState(false);
+  }
+}
+
 soundButton.addEventListener('click', () => {
-  const next = soundButton.getAttribute('aria-pressed') !== 'true';
-  if (next) {
-    backgroundTrack.play().then(() => {
-      soundButton.setAttribute('aria-pressed', 'true');
-      document.body.classList.add('sound-on');
-    }).catch(() => {});
+  if (!backgroundTrack.paused) {
+    backgroundTrack.pause();
+    setSoundState(false);
     return;
   }
-  backgroundTrack.pause();
-  soundButton.setAttribute('aria-pressed', 'false');
-  document.body.classList.remove('sound-on');
+  startBackgroundTrack();
+});
+
+startBackgroundTrack();
+
+window.addEventListener('pointerdown', (event) => {
+  if (event.target.closest('.sound-toggle')) return;
+  if (backgroundTrack.paused) startBackgroundTrack();
+}, { once: true });
+
+function scheduleShootingStar() {
+  shootingStar.classList.add('meteor-active');
+  window.setTimeout(() => shootingStar.classList.remove('meteor-active'), 1200);
+  window.setTimeout(scheduleShootingStar, 2000 + Math.random() * 3000);
+}
+
+window.setTimeout(scheduleShootingStar, 2000 + Math.random() * 3000);
+
+feedbackButton.addEventListener('click', () => feedbackDialog.showModal());
+feedbackCloseButton.addEventListener('click', () => feedbackDialog.close());
+feedbackDialog.addEventListener('click', (event) => {
+  if (event.target === feedbackDialog) feedbackDialog.close();
+});
+copyWechatButton.addEventListener('click', async () => {
+  const originalText = copyWechatButton.textContent;
+  try {
+    await navigator.clipboard.writeText(copyWechatButton.dataset.wechat);
+    copyWechatButton.textContent = '\u5df2\u590d\u5236';
+  } catch {
+    copyWechatButton.textContent = copyWechatButton.dataset.wechat;
+  }
+  window.setTimeout(() => { copyWechatButton.textContent = originalText; }, 1600);
 });
 function animate() {
   requestAnimationFrame(animate);
