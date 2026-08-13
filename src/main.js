@@ -85,7 +85,7 @@ let figure;
 let mixer;
 let figureBaseY = 0;
 const loader = new GLTFLoader();
-const modelUrl = isIPhoneWebKit ? '/models/chibi-figure-ios-compact.glb' : '/models/chibi-figure.glb';
+const modelUrl = isIPhoneWebKit ? '/models/chibi-figure-ios-1k.glb' : '/models/chibi-figure.glb';
 loader.load(modelUrl, (gltf) => {
   figure = gltf.scene;
   const bounds = new THREE.Box3().setFromObject(figure);
