@@ -12,6 +12,8 @@ const feedbackDialog = document.querySelector('.feedback-dialog');
 const feedbackBackdrop = document.querySelector('.feedback-backdrop');
 const feedbackCloseButton = document.querySelector('.feedback-close');
 const copyWechatButton = document.querySelector('.copy-wechat');
+const isIPhoneWebKit = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const useMobileRenderer = isIPhoneWebKit || window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 const dust = document.querySelector('#poem-dust');
 const backgroundTrack = new Audio('/music/happy-lullaby.mp3');
 backgroundTrack.loop = true;
@@ -34,11 +36,16 @@ scene.fog = new THREE.FogExp2(0x10162f, 0.035);
 const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
 camera.position.set(0, 1.2, 8.1);
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: !useMobileRenderer,
+  alpha: true,
+  powerPreference: 'high-performance',
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, useMobileRenderer ? 1 : 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = !useMobileRenderer;
+if (!useMobileRenderer) renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -79,7 +86,8 @@ let figure;
 let mixer;
 let figureBaseY = 0;
 const loader = new GLTFLoader();
-loader.load('/models/chibi-figure.glb', (gltf) => {
+const modelUrl = useMobileRenderer ? '/models/chibi-figure-mobile.glb' : '/models/chibi-figure.glb';
+loader.load(modelUrl, (gltf) => {
   figure = gltf.scene;
   const bounds = new THREE.Box3().setFromObject(figure);
   const size = bounds.getSize(new THREE.Vector3());
@@ -103,6 +111,11 @@ loader.load('/models/chibi-figure.glb', (gltf) => {
   window.__CHIBI_READY = true;
   document.body.classList.add('model-ready');
 }, undefined, () => document.body.classList.add('model-fallback'));
+
+canvas.addEventListener('webglcontextlost', (event) => {
+  event.preventDefault();
+  document.body.classList.add('model-fallback');
+});
 
 const clock = new THREE.Clock();
 function resize() {
