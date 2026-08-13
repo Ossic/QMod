@@ -98,7 +98,7 @@ loader.load(modelUrl, (gltf) => {
   const bounds = new THREE.Box3().setFromObject(figure);
   const size = bounds.getSize(new THREE.Vector3());
   const center = bounds.getCenter(new THREE.Vector3());
-  const scale = 3.55 / Math.max(size.x, size.y, size.z);
+  const scale = (3.55 * 0.75) / Math.max(size.x, size.y, size.z);
   figure.scale.setScalar(scale);
   figureBaseY = -center.y * scale - 0.55;
   figure.position.set(-center.x * scale, figureBaseY, -center.z * scale);
