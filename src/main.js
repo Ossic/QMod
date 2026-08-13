@@ -12,6 +12,7 @@ const feedbackDialog = document.querySelector('.feedback-dialog');
 const feedbackBackdrop = document.querySelector('.feedback-backdrop');
 const feedbackCloseButton = document.querySelector('.feedback-close');
 const copyWechatButton = document.querySelector('.copy-wechat');
+const modelLoading = document.querySelector('.model-loading');
 const isIPhoneWebKit = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 const dust = document.querySelector('#poem-dust');
 const backgroundTrack = new Audio('/music/happy-lullaby.mp3');
@@ -86,6 +87,12 @@ let mixer;
 let figureBaseY = 0;
 const loader = new GLTFLoader();
 const modelUrl = isIPhoneWebKit ? '/models/chibi-figure-ios-1k.glb' : '/models/chibi-figure.glb';
+function setModelStatus(message, state) {
+  modelLoading.querySelector('span').textContent = message;
+  document.body.classList.remove('model-ready', 'model-fallback');
+  if (state) document.body.classList.add(state);
+}
+
 loader.load(modelUrl, (gltf) => {
   figure = gltf.scene;
   const bounds = new THREE.Box3().setFromObject(figure);
@@ -108,12 +115,18 @@ loader.load(modelUrl, (gltf) => {
     gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
   }
   window.__CHIBI_READY = true;
-  document.body.classList.add('model-ready');
-}, undefined, () => document.body.classList.add('model-fallback'));
+  setModelStatus('\u4eba\u7269\u5df2\u81f3\u6708\u4e0b', 'model-ready');
+}, (event) => {
+  if (event.lengthComputable) {
+    setModelStatus(`\u6b63\u5728\u8f7d\u5165\u4eba\u7269 ${Math.round((event.loaded / event.total) * 100)}%`);
+  } else if (event.loaded > 0) {
+    setModelStatus('\u6b63\u5728\u8f7d\u5165\u4eba\u7269');
+  }
+}, () => setModelStatus('\u4eba\u7269\u672a\u80fd\u62b5\u8fbe\uff0c\u8bf7\u5237\u65b0\u91cd\u8bd5', 'model-fallback'));
 
 canvas.addEventListener('webglcontextlost', (event) => {
   event.preventDefault();
-  document.body.classList.add('model-fallback');
+  setModelStatus('\u7ed8\u5236\u4e2d\u65ad\uff0c\u8bf7\u5237\u65b0\u91cd\u8bd5', 'model-fallback');
 });
 
 const clock = new THREE.Clock();
