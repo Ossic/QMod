@@ -9,6 +9,7 @@ const soundButton = document.querySelector('.sound-toggle');
 const shootingStar = document.querySelector('.shooting-star');
 const feedbackButton = document.querySelector('.feedback-toggle');
 const feedbackDialog = document.querySelector('.feedback-dialog');
+const feedbackBackdrop = document.querySelector('.feedback-backdrop');
 const feedbackCloseButton = document.querySelector('.feedback-close');
 const copyWechatButton = document.querySelector('.copy-wechat');
 const dust = document.querySelector('#poem-dust');
@@ -156,10 +157,21 @@ function scheduleShootingStar() {
 
 window.setTimeout(scheduleShootingStar, 2000 + Math.random() * 3000);
 
-feedbackButton.addEventListener('click', () => feedbackDialog.showModal());
-feedbackCloseButton.addEventListener('click', () => feedbackDialog.close());
-feedbackDialog.addEventListener('click', (event) => {
-  if (event.target === feedbackDialog) feedbackDialog.close();
+function closeFeedback() {
+  feedbackDialog.hidden = true;
+  feedbackBackdrop.hidden = true;
+  feedbackButton.focus();
+}
+
+feedbackButton.addEventListener('click', () => {
+  feedbackDialog.hidden = false;
+  feedbackBackdrop.hidden = false;
+  feedbackCloseButton.focus();
+});
+feedbackCloseButton.addEventListener('click', closeFeedback);
+feedbackBackdrop.addEventListener('click', closeFeedback);
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !feedbackDialog.hidden) closeFeedback();
 });
 copyWechatButton.addEventListener('click', async () => {
   const originalText = copyWechatButton.textContent;
