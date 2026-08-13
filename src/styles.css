@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600;700;900&family=ZCOOL+XiaoWei&display=swap');
 
 :root { color: #f3eee1; background: #10162f; font-family: 'Noto Serif SC', 'Songti SC', serif; font-synthesis: none; }
 * { box-sizing: border-box; }
@@ -27,3 +27,20 @@ nav { display: flex; gap: 28px; color: #d6d9e5; font-size: 13px; } nav a:hover, 
 @keyframes drift { from { transform: translateX(-4vw) scaleX(0.96); } to { transform: translateX(8vw) scaleX(1.05); } } @keyframes float-word { 0%,100% { transform: translate3d(0,0,0); opacity: 0; } 15%,75% { opacity: 0.75; } 50% { transform: translate3d(16px,-32px,0) rotate(8deg); } } @keyframes wave { from { transform: translateX(-6%) scaleY(0.62); } to { transform: translateX(8%) scaleY(1.04); } } @keyframes music-note { from { transform: translateY(1px) rotate(-8deg); } to { transform: translateY(-3px) rotate(8deg); } }
 @media (max-width: 760px) { .site-header { height: 65px; padding: 0 22px; }.wordmark { font-size: 15px; }.wordmark span { font-size: 7px; } nav { display: none; }.sound-text { display: none; }.moon { top: 15%; right: 10%; width: 44vw; }.hero-copy { left: 7vw; top: 52%; max-width: 300px; }.hero-summary { font-size: 14px; }.scene-note { right: 8vw; bottom: 12vh; }.reset-view { top: auto; right: 7vw; bottom: 14vh; }.section-band { padding: 108px 7vw; }.section-index { top: 28px; left: 7vw; }.prologue-layout { grid-template-columns: 30px 1fr; gap: 24px; }.prologue-layout > div:last-child { grid-column: 2; }.seal { margin-top: 5px; }.poetry-head { margin-bottom: 35px; }.verse-grid { grid-template-columns: 1fr; }.verse-card, .verse-card:nth-child(3n + 1) { min-height: 250px; border-left: 1px solid rgba(242, 225, 184, 0.22); }.verse-card p { margin: 34px 0 18px; }.verse-card em { margin-top: 14px; }.journey-layout { grid-template-columns: 1fr; gap: 30px; }.closing-line { margin-top: 46px; }.journey::before { bottom: -10vw; font-size: 55vw; } footer { padding: 21px 7vw; font-size: 8px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
+
+/* A brief meteor crosses the open sky to the moon's left. */
+.shooting-star { position: absolute; z-index: 2; top: 18%; right: 34%; width: 20px; height: 20px; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 7px rgba(255, 250, 220, 0.92)); animation: shooting-star 12s 3s infinite; }
+.shooting-star::before { content: ''; position: absolute; top: 50%; right: 0; width: 160px; height: 1px; transform: rotate(28deg); transform-origin: right center; background: linear-gradient(90deg, transparent, rgba(244, 238, 202, 0.28), #fff9dd); }
+.shooting-star::after { content: ''; position: absolute; top: calc(50% - 3px); right: -1px; width: 7px; height: 7px; border-radius: 50%; background: #fffdf1; box-shadow: 0 0 11px 2px rgba(255, 245, 196, 0.72); }
+@keyframes shooting-star { 0%, 72%, 100% { opacity: 0; transform: translate3d(0, 0, 0); } 75% { opacity: 0.96; } 84% { opacity: 0.96; transform: translate3d(224px, 112px, 0); } 88% { opacity: 0; transform: translate3d(256px, 128px, 0); } }
+
+.reset-view { top: 61%; }
+.footprint-link { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center; max-width: 620px; margin: 58px auto 0; padding: 19px 22px; color: inherit; text-decoration: none; border-top: 1px solid rgba(137, 62, 76, 0.48); border-bottom: 1px solid rgba(137, 62, 76, 0.22); background: rgba(255, 255, 255, 0.08); transition: transform 220ms ease, border-color 220ms ease, background 220ms ease; }
+.footprint-link:hover, .footprint-link:focus-visible { transform: translateY(-3px); border-color: rgba(137, 62, 76, 0.8); background: rgba(255, 255, 255, 0.18); outline: none; }
+.footprint-link span { color: #893e4c; font: 500 11px/1.2 'DM Mono', monospace; letter-spacing: 0.16em; }
+.footprint-link strong { grid-column: 1; font-size: clamp(16px, 1.8vw, 20px); font-weight: 500; line-height: 1.75; }
+.footprint-link b { grid-column: 2; grid-row: 1 / span 2; color: #893e4c; font-size: 25px; font-weight: 400; }
+footer { flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+.footer-feedback { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.wechat-icon { width: 12px; height: 12px; opacity: 0.82; }
+@media (max-width: 760px) { .shooting-star { top: 16%; right: 28%; transform: scale(0.72); transform-origin: right center; } .reset-view { top: auto; bottom: 9vh; } .footprint-link { margin-top: 42px; padding: 16px 2px; } footer { justify-content: center; } }
