@@ -11,14 +11,15 @@ const feedbackButton = document.querySelector('.feedback-toggle');
 const feedbackDialog = document.querySelector('.feedback-dialog');
 const feedbackBackdrop = document.querySelector('.feedback-backdrop');
 const feedbackCloseButton = document.querySelector('.feedback-close');
-const copyWechatButton = document.querySelector('.copy-wechat');
+const copyEmailButton = document.querySelector('.copy-email');
 const modelLoading = document.querySelector('.model-loading');
 const isIPhoneWebKit = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 const dust = document.querySelector('#poem-dust');
-const backgroundTrack = new Audio('/music/happy-lullaby.mp3');
+const backgroundTrack = document.querySelector('#background-track');
 backgroundTrack.loop = true;
+backgroundTrack.autoplay = true;
 backgroundTrack.volume = 0.18;
-backgroundTrack.preload = 'metadata';
+backgroundTrack.preload = 'auto';
 const poemCharacters = ['\u6708', '\u98ce', '\u6c5f', '\u9152', '\u7af9', '\u4e91', '\u6e38', '\u8bcd'];
 
 for (let index = 0; index < 18; index += 1) {
@@ -171,11 +172,6 @@ soundButton.addEventListener('click', () => {
 
 startBackgroundTrack();
 
-window.addEventListener('pointerdown', (event) => {
-  if (event.target.closest('.sound-toggle')) return;
-  if (backgroundTrack.paused) startBackgroundTrack();
-}, { once: true });
-
 function scheduleShootingStar() {
   shootingStar.classList.add('meteor-active');
   window.setTimeout(() => shootingStar.classList.remove('meteor-active'), 1200);
@@ -200,15 +196,15 @@ feedbackBackdrop.addEventListener('click', closeFeedback);
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && !feedbackDialog.hidden) closeFeedback();
 });
-copyWechatButton.addEventListener('click', async () => {
-  const originalText = copyWechatButton.textContent;
+copyEmailButton.addEventListener('click', async () => {
+  const originalText = copyEmailButton.textContent;
   try {
-    await navigator.clipboard.writeText(copyWechatButton.dataset.wechat);
-    copyWechatButton.textContent = '\u5df2\u590d\u5236';
+    await navigator.clipboard.writeText(copyEmailButton.dataset.email);
+    copyEmailButton.textContent = '\u5df2\u590d\u5236';
   } catch {
-    copyWechatButton.textContent = copyWechatButton.dataset.wechat;
+    copyEmailButton.textContent = copyEmailButton.dataset.email;
   }
-  window.setTimeout(() => { copyWechatButton.textContent = originalText; }, 1600);
+  window.setTimeout(() => { copyEmailButton.textContent = originalText; }, 1600);
 });
 function animate() {
   requestAnimationFrame(animate);

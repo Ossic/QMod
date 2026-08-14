@@ -1,9 +1,19 @@
 import './footprints.css';
 
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+function showPageTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+}
+
+showPageTop();
+window.addEventListener('pageshow', showPageTop);
+
 const soundButton = document.querySelector('.trail-sound-toggle');
-const backgroundTrack = new Audio('/music/happy-lullaby.mp3');
+const backgroundTrack = document.querySelector('#background-track');
 
 backgroundTrack.loop = true;
+backgroundTrack.autoplay = true;
 backgroundTrack.volume = 0.21;
 backgroundTrack.playbackRate = 0.78;
 backgroundTrack.preload = 'auto';
@@ -38,7 +48,3 @@ soundButton.addEventListener('click', () => {
 });
 
 startBackgroundTrack();
-window.addEventListener('pointerdown', (event) => {
-  if (event.target.closest('.trail-sound-toggle')) return;
-  if (backgroundTrack.paused) startBackgroundTrack();
-}, { once: true });
