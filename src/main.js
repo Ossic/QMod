@@ -7,6 +7,8 @@ const canvas = document.querySelector('#figure-scene');
 const resetButton = document.querySelector('.reset-view');
 const soundButton = document.querySelector('.sound-toggle');
 const shootingStar = document.querySelector('.shooting-star');
+const changeFigureButton = document.querySelector('.change-figure');
+const changeDialogue = document.querySelector('.change-dialogue');
 const feedbackButton = document.querySelector('.feedback-toggle');
 const feedbackDialog = document.querySelector('.feedback-dialog');
 const feedbackBackdrop = document.querySelector('.feedback-backdrop');
@@ -21,6 +23,30 @@ backgroundTrack.autoplay = true;
 backgroundTrack.volume = 0.18;
 backgroundTrack.preload = 'auto';
 const poemCharacters = ['\u6708', '\u98ce', '\u6c5f', '\u9152', '\u7af9', '\u4e91', '\u6e38', '\u8bcd'];
+const changeCharacterDelay = 220;
+const changeFadeDuration = 1240;
+let changeMessages = [];
+let changeMessageIndex = 0;
+let changeDialogueTimer;
+let changeDialogueFadeTimer;
+let changeDialogueRequestId = 0;
+
+function parseChangeMessages(markdown) {
+  return markdown.trim().split(/\r?\n\s*\r?\n/).map((paragraph) => (
+    paragraph.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+  )).filter((paragraph) => paragraph.length);
+}
+
+const changeMessagesReady = fetch('/content/change-dialogue.md', { cache: 'no-store' })
+  .then((response) => {
+    if (!response.ok) throw new Error('Unable to load Chang\'e dialogue');
+    return response.text();
+  })
+  .then((markdown) => {
+    changeMessages = parseChangeMessages(markdown);
+    return changeMessages;
+  })
+  .catch(() => []);
 
 for (let index = 0; index < 18; index += 1) {
   const glyph = document.createElement('span');
@@ -31,6 +57,78 @@ for (let index = 0; index < 18; index += 1) {
   glyph.style.setProperty('--duration', `${8 + (index % 5)}s`);
   dust.appendChild(glyph);
 }
+
+function hideChangeDialogue() {
+  changeDialogue.classList.remove('is-visible', 'is-leaving');
+  changeDialogue.setAttribute('aria-hidden', 'true');
+  changeFigureButton.setAttribute('aria-expanded', 'false');
+}
+
+function clearChangeDialogueTimers() {
+  window.clearTimeout(changeDialogueTimer);
+  window.clearTimeout(changeDialogueFadeTimer);
+}
+
+function getChangeCompleteHold(lines) {
+  const characterCount = lines.join('').replace(/[\u3002\uff0c\uff1b\u3001\u2014\s]/g, '').length;
+  return Math.max(2000, (characterCount / 20) * 2500);
+}
+
+function renderChangeParagraph() {
+  const lines = changeMessages[changeMessageIndex];
+  const characters = lines.flatMap((line) => [...line]);
+  let characterIndex = 0;
+  changeDialogue.replaceChildren(...lines.map((line) => {
+    const item = document.createElement('span');
+    item.className = 'change-dialogue-line';
+    for (const character of line) {
+      const glyph = document.createElement('i');
+      glyph.className = 'change-dialogue-char';
+      glyph.textContent = character;
+      glyph.style.animationDelay = `${characterIndex * changeCharacterDelay}ms`;
+      characterIndex += 1;
+      item.appendChild(glyph);
+    }
+    return item;
+  }));
+  changeDialogue.setAttribute('aria-hidden', 'false');
+  changeDialogue.classList.remove('is-leaving');
+  changeDialogue.classList.add('is-visible');
+  changeFigureButton.setAttribute('aria-expanded', 'true');
+
+  const typingDuration = characters.length * changeCharacterDelay + 440;
+  const completeHold = getChangeCompleteHold(lines);
+  const isLastParagraph = changeMessageIndex === changeMessages.length - 1;
+  if (isLastParagraph) {
+    changeDialogueTimer = window.setTimeout(() => {
+      changeDialogue.classList.add('is-leaving');
+      changeDialogueTimer = window.setTimeout(hideChangeDialogue, changeFadeDuration);
+    }, typingDuration + completeHold + 2400);
+    return;
+  }
+
+  changeDialogueFadeTimer = window.setTimeout(() => {
+    changeDialogue.classList.add('is-leaving');
+  }, typingDuration + completeHold);
+  changeDialogueTimer = window.setTimeout(() => {
+    changeMessageIndex += 1;
+    renderChangeParagraph();
+  }, typingDuration + completeHold + changeFadeDuration);
+}
+
+async function showChangeDialogue() {
+  const requestId = ++changeDialogueRequestId;
+  clearChangeDialogueTimers();
+  if (changeDialogue.classList.contains('is-visible')) {
+    hideChangeDialogue();
+  }
+  await changeMessagesReady;
+  if (requestId !== changeDialogueRequestId || !changeMessages.length) return;
+  changeMessageIndex = 0;
+  window.setTimeout(renderChangeParagraph, 180);
+}
+
+changeFigureButton.addEventListener('click', showChangeDialogue);
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x10162f, 0.035);
