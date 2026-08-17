@@ -24,7 +24,7 @@ backgroundTrack.volume = 0.18;
 backgroundTrack.preload = 'auto';
 const poemCharacters = ['\u6708', '\u98ce', '\u6c5f', '\u9152', '\u7af9', '\u4e91', '\u6e38', '\u8bcd'];
 const changeCharacterDelay = 220;
-const changeFadeDuration = 1240;
+const changeFadeDuration = 3200;
 let changeMessages = [];
 let changeMessageIndex = 0;
 let changeDialogueTimer;
@@ -108,7 +108,14 @@ function renderChangeParagraph() {
       const glyph = document.createElement('i');
       glyph.className = 'change-dialogue-char';
       glyph.textContent = character;
-      glyph.style.animationDelay = `${characterIndex * changeCharacterDelay}ms`;
+      glyph.style.setProperty('--character-delay', `${characterIndex * changeCharacterDelay}ms`);
+      const windX = -62 - Math.round(Math.random() * 54);
+      const windY = -34 - Math.round(Math.random() * 38);
+      const windRotate = -32 + Math.round(Math.random() * 64);
+      glyph.style.setProperty('--wind-x', `${windX}px`);
+      glyph.style.setProperty('--wind-y', `${windY}px`);
+      glyph.style.setProperty('--wind-rotate', `${windRotate}deg`);
+      glyph.style.setProperty('--wind-delay', `${Math.round(Math.random() * 280)}ms`);
       characterIndex += 1;
       item.appendChild(glyph);
     }
@@ -192,6 +199,13 @@ changeFigureButton.addEventListener('click', () => {
     return;
   }
   pauseChangeDialogue();
+});
+
+changeFigureButton.addEventListener('dblclick', () => {
+  suppressChangeClick = false;
+  changeDialogueRequestId += 1;
+  clearChangeDialogueTimers();
+  hideChangeDialogue();
 });
 
 const scene = new THREE.Scene();
