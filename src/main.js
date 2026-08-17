@@ -28,8 +28,14 @@ const changeFadeDuration = 1240;
 let changeMessages = [];
 let changeMessageIndex = 0;
 let changeDialogueTimer;
-let changeDialogueFadeTimer;
 let changeDialogueRequestId = 0;
+let changeDialoguePaused = false;
+let changeDialogueNextAction;
+let changeDialogueNextDueAt = 0;
+let changeDialogueRemainingDelay = 0;
+let changeLongPressTimer;
+let suppressChangeClick = false;
+const changeLongPressDelay = 650;
 
 function parseChangeMessages(markdown) {
   return markdown.trim().split(/\r?\n\s*\r?\n/).map((paragraph) => (
@@ -59,14 +65,31 @@ for (let index = 0; index < 18; index += 1) {
 }
 
 function hideChangeDialogue() {
-  changeDialogue.classList.remove('is-visible', 'is-leaving');
+  changeDialogue.classList.remove('is-visible', 'is-leaving', 'is-paused');
   changeDialogue.setAttribute('aria-hidden', 'true');
   changeFigureButton.setAttribute('aria-expanded', 'false');
+  changeDialoguePaused = false;
+  changeDialogueNextAction = undefined;
+  changeDialogueNextDueAt = 0;
+  changeDialogueRemainingDelay = 0;
 }
 
 function clearChangeDialogueTimers() {
   window.clearTimeout(changeDialogueTimer);
-  window.clearTimeout(changeDialogueFadeTimer);
+  changeDialogueNextAction = undefined;
+  changeDialogueNextDueAt = 0;
+  changeDialogueRemainingDelay = 0;
+}
+
+function scheduleChangeAction(action, delay) {
+  window.clearTimeout(changeDialogueTimer);
+  changeDialogueNextAction = action;
+  changeDialogueNextDueAt = performance.now() + delay;
+  changeDialogueTimer = window.setTimeout(() => {
+    changeDialogueNextAction = undefined;
+    changeDialogueNextDueAt = 0;
+    action();
+  }, delay);
 }
 
 function getChangeCompleteHold(lines) {
@@ -92,43 +115,84 @@ function renderChangeParagraph() {
     return item;
   }));
   changeDialogue.setAttribute('aria-hidden', 'false');
-  changeDialogue.classList.remove('is-leaving');
+  changeDialogue.classList.remove('is-leaving', 'is-paused');
   changeDialogue.classList.add('is-visible');
   changeFigureButton.setAttribute('aria-expanded', 'true');
+  changeDialoguePaused = false;
 
   const typingDuration = characters.length * changeCharacterDelay + 440;
   const completeHold = getChangeCompleteHold(lines);
   const isLastParagraph = changeMessageIndex === changeMessages.length - 1;
-  if (isLastParagraph) {
-    changeDialogueTimer = window.setTimeout(() => {
-      changeDialogue.classList.add('is-leaving');
-      changeDialogueTimer = window.setTimeout(hideChangeDialogue, changeFadeDuration);
-    }, typingDuration + completeHold + 2400);
-    return;
-  }
-
-  changeDialogueFadeTimer = window.setTimeout(() => {
+  const fadeAndContinue = () => {
     changeDialogue.classList.add('is-leaving');
-  }, typingDuration + completeHold);
-  changeDialogueTimer = window.setTimeout(() => {
-    changeMessageIndex += 1;
-    renderChangeParagraph();
-  }, typingDuration + completeHold + changeFadeDuration);
+    scheduleChangeAction(() => {
+      if (isLastParagraph) {
+        hideChangeDialogue();
+        return;
+      }
+      changeMessageIndex += 1;
+      renderChangeParagraph();
+    }, changeFadeDuration);
+  };
+
+  scheduleChangeAction(fadeAndContinue, typingDuration + completeHold + (isLastParagraph ? 2400 : 0));
 }
 
-async function showChangeDialogue() {
+async function startChangeDialogue() {
   const requestId = ++changeDialogueRequestId;
   clearChangeDialogueTimers();
-  if (changeDialogue.classList.contains('is-visible')) {
-    hideChangeDialogue();
-  }
+  hideChangeDialogue();
   await changeMessagesReady;
   if (requestId !== changeDialogueRequestId || !changeMessages.length) return;
   changeMessageIndex = 0;
   window.setTimeout(renderChangeParagraph, 180);
 }
 
-changeFigureButton.addEventListener('click', showChangeDialogue);
+function pauseChangeDialogue() {
+  if (!changeDialogueNextAction || changeDialogue.classList.contains('is-leaving')) return;
+  changeDialogueRemainingDelay = Math.max(0, changeDialogueNextDueAt - performance.now());
+  window.clearTimeout(changeDialogueTimer);
+  changeDialoguePaused = true;
+  changeDialogue.classList.add('is-paused');
+}
+
+function resumeChangeDialogue() {
+  if (!changeDialoguePaused || !changeDialogueNextAction) return;
+  const action = changeDialogueNextAction;
+  const delay = changeDialogueRemainingDelay;
+  changeDialoguePaused = false;
+  changeDialogue.classList.remove('is-paused');
+  scheduleChangeAction(action, delay);
+}
+
+changeFigureButton.addEventListener('pointerdown', (event) => {
+  if (event.button && event.pointerType === 'mouse') return;
+  window.clearTimeout(changeLongPressTimer);
+  changeLongPressTimer = window.setTimeout(() => {
+    suppressChangeClick = true;
+    startChangeDialogue();
+  }, changeLongPressDelay);
+});
+
+['pointerup', 'pointercancel', 'pointerleave'].forEach((eventName) => {
+  changeFigureButton.addEventListener(eventName, () => window.clearTimeout(changeLongPressTimer));
+});
+
+changeFigureButton.addEventListener('click', () => {
+  if (suppressChangeClick) {
+    suppressChangeClick = false;
+    return;
+  }
+  if (!changeDialogue.classList.contains('is-visible')) {
+    startChangeDialogue();
+    return;
+  }
+  if (changeDialoguePaused) {
+    resumeChangeDialogue();
+    return;
+  }
+  pauseChangeDialogue();
+});
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x10162f, 0.035);
