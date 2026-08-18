@@ -9,6 +9,7 @@ const soundButton = document.querySelector('.sound-toggle');
 const shootingStar = document.querySelector('.shooting-star');
 const changeFigureButton = document.querySelector('.change-figure');
 const changeDialogue = document.querySelector('.change-dialogue');
+const changeDialogueExit = document.querySelector('.change-dialogue-exit');
 const feedbackButton = document.querySelector('.feedback-toggle');
 const feedbackDialog = document.querySelector('.feedback-dialog');
 const feedbackBackdrop = document.querySelector('.feedback-backdrop');
@@ -25,9 +26,11 @@ backgroundTrack.preload = 'auto';
 const poemCharacters = ['\u6708', '\u98ce', '\u6c5f', '\u9152', '\u7af9', '\u4e91', '\u6e38', '\u8bcd'];
 const changeCharacterDelay = 220;
 const changeFadeDuration = 3200;
+const changeDialogueOverlapDelay = 760;
 let changeMessages = [];
 let changeMessageIndex = 0;
 let changeDialogueTimer;
+let changeDialogueExitTimer;
 let changeDialogueRequestId = 0;
 let changeDialoguePaused = false;
 let changeDialogueNextAction;
@@ -66,6 +69,8 @@ for (let index = 0; index < 18; index += 1) {
 
 function hideChangeDialogue() {
   changeDialogue.classList.remove('is-visible', 'is-leaving', 'is-paused');
+  changeDialogueExit.classList.remove('is-visible', 'is-leaving');
+  changeDialogueExit.replaceChildren();
   changeDialogue.setAttribute('aria-hidden', 'true');
   changeFigureButton.setAttribute('aria-expanded', 'false');
   changeDialoguePaused = false;
@@ -76,9 +81,21 @@ function hideChangeDialogue() {
 
 function clearChangeDialogueTimers() {
   window.clearTimeout(changeDialogueTimer);
+  window.clearTimeout(changeDialogueExitTimer);
   changeDialogueNextAction = undefined;
   changeDialogueNextDueAt = 0;
   changeDialogueRemainingDelay = 0;
+}
+
+function moveDialogueToExit() {
+  changeDialogueExit.replaceChildren(...changeDialogue.childNodes);
+  changeDialogueExit.classList.add('is-visible', 'is-leaving');
+  changeDialogue.classList.remove('is-visible', 'is-leaving', 'is-paused');
+  changeDialogue.setAttribute('aria-hidden', 'true');
+  changeDialogueExitTimer = window.setTimeout(() => {
+    changeDialogueExit.classList.remove('is-visible', 'is-leaving');
+    changeDialogueExit.replaceChildren();
+  }, changeFadeDuration);
 }
 
 function scheduleChangeAction(action, delay) {
@@ -131,7 +148,7 @@ function renderChangeParagraph() {
   const completeHold = getChangeCompleteHold(lines);
   const isLastParagraph = changeMessageIndex === changeMessages.length - 1;
   const fadeAndContinue = () => {
-    changeDialogue.classList.add('is-leaving');
+    moveDialogueToExit();
     scheduleChangeAction(() => {
       if (isLastParagraph) {
         hideChangeDialogue();
@@ -139,7 +156,7 @@ function renderChangeParagraph() {
       }
       changeMessageIndex += 1;
       renderChangeParagraph();
-    }, changeFadeDuration);
+    }, isLastParagraph ? changeFadeDuration : changeDialogueOverlapDelay);
   };
 
   scheduleChangeAction(fadeAndContinue, typingDuration + completeHold + (isLastParagraph ? 2400 : 0));
@@ -153,6 +170,10 @@ async function startChangeDialogue() {
   if (requestId !== changeDialogueRequestId || !changeMessages.length) return;
   changeMessageIndex = 0;
   window.setTimeout(renderChangeParagraph, 180);
+}
+
+function markChangeFigureActivated() {
+  changeFigureButton.classList.add('is-activated');
 }
 
 function pauseChangeDialogue() {
@@ -177,6 +198,7 @@ changeFigureButton.addEventListener('pointerdown', (event) => {
   window.clearTimeout(changeLongPressTimer);
   changeLongPressTimer = window.setTimeout(() => {
     suppressChangeClick = true;
+    markChangeFigureActivated();
     startChangeDialogue();
   }, changeLongPressDelay);
 });
@@ -186,6 +208,7 @@ changeFigureButton.addEventListener('pointerdown', (event) => {
 });
 
 changeFigureButton.addEventListener('click', () => {
+  markChangeFigureActivated();
   if (suppressChangeClick) {
     suppressChangeClick = false;
     return;
@@ -207,6 +230,9 @@ changeFigureButton.addEventListener('dblclick', () => {
   clearChangeDialogueTimers();
   hideChangeDialogue();
 });
+
+changeFigureButton.addEventListener('contextmenu', (event) => event.preventDefault());
+changeFigureButton.addEventListener('dragstart', (event) => event.preventDefault());
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x10162f, 0.035);
