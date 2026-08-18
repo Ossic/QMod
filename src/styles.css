@@ -49,6 +49,7 @@ nav { display: flex; gap: 28px; color: #d6d9e5; font-size: 13px; } nav a:hover, 
 .change-figure { -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; animation: change-float 6.8s ease-in-out infinite alternate, change-figure-breathe 4.4s ease-in-out infinite; }
 .change-figure:focus:not(:focus-visible) { outline: none; }
 .change-figure[aria-expanded="true"], .change-figure.is-activated { opacity: 0.94; animation: change-float 6.8s ease-in-out infinite alternate; }
+.change-figure:active img, .change-figure[aria-expanded="true"] img { transform: scale(1.06); }
 @keyframes change-figure-breathe { 0%, 27.3%, 54.5%, 100% { opacity: 0.94; } 13.6%, 40.9% { opacity: 0.33; } }
 
 .reset-view { top: auto; right: 5vw; bottom: 9vh; }

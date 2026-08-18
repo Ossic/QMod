@@ -193,6 +193,12 @@ function resumeChangeDialogue() {
   scheduleChangeAction(action, delay);
 }
 
+function resetChangeDialogue() {
+  changeDialogueRequestId += 1;
+  clearChangeDialogueTimers();
+  hideChangeDialogue();
+}
+
 changeFigureButton.addEventListener('pointerdown', (event) => {
   if (event.button && event.pointerType === 'mouse') return;
   window.clearTimeout(changeLongPressTimer);
@@ -224,11 +230,9 @@ changeFigureButton.addEventListener('click', () => {
   pauseChangeDialogue();
 });
 
-changeFigureButton.addEventListener('dblclick', () => {
-  suppressChangeClick = false;
-  changeDialogueRequestId += 1;
-  clearChangeDialogueTimers();
-  hideChangeDialogue();
+changeFigureButton.addEventListener('dblclick', (event) => {
+  event.preventDefault();
+  resetChangeDialogue();
 });
 
 changeFigureButton.addEventListener('contextmenu', (event) => event.preventDefault());
