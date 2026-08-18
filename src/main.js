@@ -230,8 +230,8 @@ changeFigureButton.addEventListener('click', () => {
   pauseChangeDialogue();
 });
 
-changeFigureButton.addEventListener('dblclick', (event) => {
-  event.preventDefault();
+changeFigureButton.addEventListener('dblclick', () => {
+  suppressChangeClick = false;
   resetChangeDialogue();
 });
 
